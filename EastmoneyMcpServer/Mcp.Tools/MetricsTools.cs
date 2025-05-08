@@ -12,6 +12,7 @@ namespace EastmoneyMcpServer.Mcp.Tools;
 /// <summary>
 /// 指标工具
 /// </summary>
+#region CCI
 [McpServerToolType]
 public sealed partial class MetricsTools(IHttpClientFactory httpClientFactory, IMongoClient mongoClient)
 {
@@ -53,7 +54,9 @@ public sealed partial class MetricsTools(IHttpClientFactory httpClientFactory, I
         return metrics.Select(x => x.ToString());
     }
 }
+#endregion
 
+#region KDJ
 public sealed partial class MetricsTools
 {
     [McpServerTool(Name = "CalcKDJ", Title = "计算K线指标[KDJ]")]
@@ -102,7 +105,9 @@ public sealed partial class MetricsTools
         return metrics.Select(x => x.ToString());
     }
 }
+#endregion
 
+#region MACD
 public sealed partial class MetricsTools
 {
     [McpServerTool(Name = "CalcMACD", Title = "计算K线指标[MACD]")]
@@ -151,7 +156,9 @@ public sealed partial class MetricsTools
         return metrics.Select(x => x.ToString());
     }
 }
+#endregion
 
+#region ROC
 public sealed partial class MetricsTools
 {
     [McpServerTool(Name = "CalcROC", Title = "计算K线指标[ROC]")]
@@ -196,7 +203,9 @@ public sealed partial class MetricsTools
         return metrics.Select(x => x.ToString());
     }
 }
+#endregion
 
+#region RSI
 public sealed partial class MetricsTools
 {
     [McpServerTool(Name = "CalcRSI", Title = "计算K线指标[RSI]")]
@@ -245,3 +254,4 @@ public sealed partial class MetricsTools
         return metrics.Select(x => x.ToString());
     }
 }
+#endregion

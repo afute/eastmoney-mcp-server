@@ -22,6 +22,15 @@ public static class Program
             AutomaticDecompression = DecompressionMethods.All
         });
         
+        builder.Services.AddHttpClient("search-codetable.eastmoney.com", client =>
+        {
+            client.BaseAddress = new Uri("https://search-codetable.eastmoney.com/");
+            client.Timeout = TimeSpan.FromSeconds(5);
+        }).ConfigurePrimaryHttpMessageHandler(_ => new HttpClientHandler
+        {
+            AutomaticDecompression = DecompressionMethods.All
+        });
+        
         // mongodb kline database
         builder.Services.Configure<AppSettings>(builder.Configuration);
         builder.Services.AddSingleton<IMongoClient>(provider =>

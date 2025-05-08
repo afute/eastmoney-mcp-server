@@ -1,24 +1,21 @@
-﻿using EastmoneyMcpServer.Interfaces;
-using MongoDB.Bson.Serialization.Attributes;
-
-namespace EastmoneyMcpServer.Models.Metrics;
+﻿namespace EastmoneyMcpServer.Models.Metrics;
 
 // ReSharper disable once InconsistentNaming
-public readonly struct ROC : IMetric
+public readonly struct ROC
 {
-    [BsonElement("roc")]
+    public required DateTime Date { get; init; }
+    
     public required double Value { get; init; }
-
-    [BsonElement("maroc")]
     public required double MaRoc { get; init; }
 
-    public static IEnumerable<IMetric> Calc(KLine[] klines, int n, int m)
+    public static IEnumerable<ROC> Calc(KLine[] klines, int n, int m)
     {
         var closes = klines.Select(k => k.Close).ToArray();
         var roc = CalculateRoc(closes, n).ToArray();
         var maroc = CalculateMaRoc(roc, m).ToArray();
-        return klines.Select((_, i) => (IMetric)new ROC
+        return klines.Select((_, i) => new ROC
         {
+            Date = klines[i].Date,
             Value = Math.Round(roc[i], 3), 
             MaRoc = Math.Round(maroc[i], 3)
         });
@@ -59,6 +56,10 @@ public readonly struct ROC : IMetric
             else yield return 0; // 前m-1个数据点无法计算MAROC
         }
     }
-    
-    public override string ToString() => $"{Value},{MaRoc}";
+
+    public override string ToString()
+    {
+        var date = Date.ToString("yyyy-MM-dd");
+        return $"{date},{Value},{MaRoc}";
+    }
 }

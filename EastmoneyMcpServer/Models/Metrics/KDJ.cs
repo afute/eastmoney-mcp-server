@@ -1,18 +1,12 @@
-﻿using EastmoneyMcpServer.Interfaces;
-using MongoDB.Bson.Serialization.Attributes;
-
-namespace EastmoneyMcpServer.Models.Metrics;
+﻿namespace EastmoneyMcpServer.Models.Metrics;
 
 // ReSharper disable once InconsistentNaming
-public readonly struct KDJ : IMetric
+public readonly struct KDJ
 {
-    [BsonElement("k")]
+    public required DateTime Date { get; init; }
+    
     public required double K { get; init; }
-    
-    [BsonElement("d")]
     public required double D { get; init; }
-    
-    [BsonElement("j")]
     public required double J { get; init; }
     
     private static (double, double) GetHighAndLow(ReadOnlySpan<KLine> value)
@@ -31,7 +25,7 @@ public readonly struct KDJ : IMetric
         return (high, low);
     }
 
-    public static IEnumerable<IMetric> Calc(KLine[] klines, int n, int m1, int m2)
+    public static IEnumerable<KDJ> Calc(KLine[] klines, int n, int m1, int m2)
     {
         var lastK = .0;
         var lastD = .0;
@@ -53,6 +47,7 @@ public readonly struct KDJ : IMetric
             lastD = d;
             yield return new KDJ
             {
+                Date = kline.Date,
                 K = Math.Round(k, 3), 
                 D = Math.Round(d, 3), 
                 J = Math.Round(j, 3)
@@ -60,5 +55,9 @@ public readonly struct KDJ : IMetric
         }
     }
 
-    public override string ToString() => $"{K},{D},{J}";
+    public override string ToString()
+    {
+        var date = Date.ToString("yyyy-MM-dd");
+        return $"{date},{K},{D},{J}";
+    }
 }

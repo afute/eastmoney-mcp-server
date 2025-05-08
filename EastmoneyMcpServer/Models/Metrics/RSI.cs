@@ -1,21 +1,15 @@
-﻿using EastmoneyMcpServer.Interfaces;
-using MongoDB.Bson.Serialization.Attributes;
-
-namespace EastmoneyMcpServer.Models.Metrics;
+﻿namespace EastmoneyMcpServer.Models.Metrics;
 
 // ReSharper disable once InconsistentNaming
-public readonly struct RSI : IMetric
+public readonly struct RSI
 {
-    [BsonElement("rsi1")]
+    public required DateTime Date { get; init; }
+    
     public required double Rsi1 { get; init; }
-    
-    [BsonElement("rsi2")]
     public required double Rsi2 { get; init; }
-    
-    [BsonElement("rsi3")]
     public required double Rsi3 { get; init; }
     
-    public static IEnumerable<IMetric> Calc(KLine[] klines, int n1, int n2, int n3)
+    public static IEnumerable<RSI> Calc(KLine[] klines, int n1, int n2, int n3)
     {
         var closes = klines.Select(k => k.Close).ToArray();
         var lc = closes.Select((_, i) => i > 0 ? closes[i - 1] : 0).ToArray();
@@ -28,8 +22,9 @@ public readonly struct RSI : IMetric
         var rsi2 = CalculateRsi(gains, absDeltas, n2).ToArray();
         var rsi3 = CalculateRsi(gains, absDeltas, n3).ToArray();
         
-        return klines.Select((_, i) => (IMetric)new RSI
+        return klines.Select((_, i) => new RSI
         {
+            Date = klines[i].Date,
             Rsi1 = Math.Round(rsi1[i], 3), 
             Rsi2 = Math.Round(rsi2[i], 3), 
             Rsi3 = Math.Round(rsi3[i], 3)
@@ -65,6 +60,10 @@ public readonly struct RSI : IMetric
             else yield return 0; // 前period-1个数据点无法计算RSI
         }
     }
-    
-    public override string ToString() => $"{Rsi1},{Rsi2},{Rsi3}";
+
+    public override string ToString()
+    {
+        var date = Date.ToString("yyyy-MM-dd");
+        return $"{date},{Rsi1},{Rsi2},{Rsi3}";
+    }
 }

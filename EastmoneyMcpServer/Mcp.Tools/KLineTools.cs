@@ -49,15 +49,14 @@ public sealed partial class KLineTools(IHttpClientFactory httpClientFactory, IMo
         var end = DateTime.ParseExact(endDate, format, info);
         end = DateTime.SpecifyKind(end, DateTimeKind.Utc);
 
-        var klines = (await GetKlineData(code, end, true)).AsSpan();
-        var mergeKlines = MergeKlines(klines, klineType)[^length..];
-        return mergeKlines.Select(x => x.ToString());
+        var klines = await GetKlineData(code, end, true);
+        return klines.MergeKlines(klineType)[^length..].Select(x => x.ToString());
     }
 }
 
 public sealed partial class KLineTools
 {
-    private async Task<KLine[]> GetKlineData(string code, DateTime endDate, bool update)
+    internal async Task<IEnumerable<KLine>> GetKlineData(string code, DateTime endDate, bool update)
     {
         var database = mongoClient.GetDatabase("klines");
         var collection = database.GetCollection<KLine>(code);
@@ -120,7 +119,7 @@ public sealed partial class KLineTools
         var data = await collection.Find(filter)
             .Sort(Builders<KLine>.Sort.Ascending(x => x.Date))
             .ToListAsync() ?? [];
-        return data.ToArray();
+        return data;
     }
 }
 
@@ -182,65 +181,3 @@ public sealed partial class KLineTools
         return await RequestKlineData(query);
     }
 }
-
-#region 合并K线方法
-public sealed partial class KLineTools
-{
-    /// <summary>
-    /// 日K线合并其他周期K线
-    /// </summary>
-    /// <param name="klines"></param>
-    /// <param name="klineType"></param>
-    /// <returns></returns>
-    /// <exception cref="ArgumentOutOfRangeException"></exception>
-    private static KLine[] MergeKlines(ReadOnlySpan<KLine> klines, KLineType klineType)
-    {
-        var result = new List<KLine>(klines.Length);
-        
-        Func<DateTime, int> mergeFunc = klineType switch
-        {
-            KLineType.Day => datetime =>
-            {
-                var year = datetime.Year;
-                var month = datetime.Month;
-                var day = datetime.Day;
-                return year * 10000 + month * 100 + day;
-            },
-
-            KLineType.Week => datetime =>
-            {
-                var (yearNum, weekNum) = datetime.GetIsoYearAndWeek();
-                return yearNum * 100 + weekNum;
-            },
-
-            KLineType.Month => datetime =>
-            {
-                var year = datetime.Year;
-                var month = datetime.Month;
-                return year * 100 + month;
-            },
-
-            _ => throw new ArgumentOutOfRangeException(nameof(klineType), klineType, null)
-        };
-        
-        var logo = mergeFunc(klines[0].Date);
-        var kline = klines[0];
-        
-        // ReSharper disable once ForCanBeConvertedToForeach
-        for (var i = 1; i < klines.Length; i++)
-        {
-            var newLogo = mergeFunc(klines[i].Date);
-            if (newLogo != logo)
-            {
-                result.Add(kline);
-                kline = klines[i];
-            }
-            else kline = kline.Merge(klines[i]);
-            logo = newLogo;
-        }
-        result.Add(kline);
-        
-        return result.ToArray();
-    }
-}
-#endregion

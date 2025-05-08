@@ -1,19 +1,13 @@
-﻿using EastmoneyMcpServer.Interfaces;
-using MongoDB.Bson.Serialization.Attributes;
-
-namespace EastmoneyMcpServer.Models.Metrics;
+﻿namespace EastmoneyMcpServer.Models.Metrics;
 
 // ReSharper disable once InconsistentNaming
-public readonly struct MACD : IMetric
+public readonly struct MACD
 {
-    [BsonElement("dif")]
-    public double Dif { get; init; }
+    public required DateTime Date { get; init; }
     
-    [BsonElement("dea")]
-    public double Dea { get; init; }
-    
-    [BsonElement("macd")]
-    public double Macd { get; init; }
+    public required double Dif { get; init; }
+    public required double Dea { get; init; }
+    public required double Macd { get; init; }
     
     private static IEnumerable<double> Ema(IEnumerable<double> source, int period)
     {
@@ -26,7 +20,7 @@ public readonly struct MACD : IMetric
         }
     }
     
-    public static IEnumerable<IMetric> Calc(KLine[] klines, int @short, int @long, int mid)
+    public static IEnumerable<MACD> Calc(KLine[] klines, int @short, int @long, int mid)
     {
         var closes = klines.Select(k => k.Close).ToArray();
         var emaShort = Ema(closes, @short).ToArray();
@@ -34,13 +28,18 @@ public readonly struct MACD : IMetric
         var dif = emaShort.Select((t, i) => t - emaLong[i]).ToArray();
         var dea = Ema(dif, mid).ToArray();
         var macd = dif.Select((t, i) => (t - dea[i]) * 2).ToArray();
-        return klines.Select((_, i) => (IMetric)new MACD
+        return klines.Select((_, i) => new MACD
         {
+            Date = klines[i].Date,
             Dif = Math.Round(dif[i], 3), 
             Dea = Math.Round(dea[i], 3), 
             Macd = Math.Round(macd[i], 3)
         });
     }
 
-    public override string ToString() => $"{Dif},{Dea},{Macd}";
+    public override string ToString()
+    {
+        var date = Date.ToString("yyyy-MM-dd");
+        return $"{date},{Dif},{Dea},{Macd}";
+    }
 }

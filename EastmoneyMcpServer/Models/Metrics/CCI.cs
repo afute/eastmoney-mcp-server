@@ -1,16 +1,13 @@
-﻿using System.Globalization;
-using EastmoneyMcpServer.Interfaces;
-using MongoDB.Bson.Serialization.Attributes;
-
-namespace EastmoneyMcpServer.Models.Metrics;
+﻿namespace EastmoneyMcpServer.Models.Metrics;
 
 // ReSharper disable once InconsistentNaming
-public sealed class CCI : IMetric
+public sealed class CCI
 {
-    [BsonElement("value")]
+    public required DateTime Date { get; init; }
+    
     public required double Value { get; init; }
 
-    public static IEnumerable<IMetric> Calc(KLine[] klines, int n)
+    public static IEnumerable<CCI> Calc(KLine[] klines, int n)
     {
         var typicalPrices = new double[klines.Length];
         for (var i = 0; i < klines.Length; i++)
@@ -20,7 +17,7 @@ public sealed class CCI : IMetric
         {
             if (i < n - 1)
             {
-                yield return new CCI { Value = 0 };
+                yield return new CCI { Date = klines[i].Date, Value = 0 };
                 continue;
             }
             var ma = typicalPrices[(i - n + 1)..(i + 1)].Average();
@@ -29,9 +26,13 @@ public sealed class CCI : IMetric
                 sumDev += Math.Abs(typicalPrices[j] - ma);
             var aveDev = sumDev / n;
             var value = aveDev != 0 ? (typicalPrices[i] - ma) * 1000.0 / (15 * aveDev) : 0;
-            yield return new CCI { Value = Math.Round(value, 3) };
+            yield return new CCI { Date = klines[i].Date, Value = Math.Round(value, 3) };
         }
     }
 
-    public override string ToString() => Value.ToString(CultureInfo.InvariantCulture);
+    public override string ToString()
+    {
+        var date = Date.ToString("yyyy-MM-dd");
+        return $"{date},{Value}";
+    }
 }

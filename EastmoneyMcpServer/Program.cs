@@ -1,22 +1,19 @@
 using System.Net;
-using EastmoneyMcpServer.Mcp;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using EastmoneyMcpServer.Models;
 
 namespace EastmoneyMcpServer;
 
+
 public static class Program
 {
     public static async Task Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
-
-        #region mcp service collection
-        var mcpService = new McpServiceCollection();
         
         // http client
-        mcpService.AddHttpClient("push2his.eastmoney.com", client =>
+        builder.Services.AddHttpClient("push2his.eastmoney.com", client =>
         {
             client.BaseAddress = new Uri("https://push2his.eastmoney.com/");
             client.Timeout = TimeSpan.FromSeconds(5);
@@ -26,16 +23,15 @@ public static class Program
         });
         
         // mongodb kline database
-        mcpService.Configure<AppSettings>(builder.Configuration);
-        mcpService.AddSingleton<IMongoClient>(provider =>
+        builder.Services.Configure<AppSettings>(builder.Configuration);
+        builder.Services.AddSingleton<IMongoClient>(provider =>
         {
             var settings = provider.GetRequiredService<IOptions<AppSettings>>();
             var client = new MongoClient(settings.Value.DatabaseConnection);
             return client;
         });
         
-        mcpService.RegisterAspService(builder.Services);
-        #endregion
+        builder.Services.AddMcpService();
         
         var app = builder.Build();
         app.MapMcp();

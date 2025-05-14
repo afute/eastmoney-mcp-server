@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 
-namespace EastmoneyMcpServer.Attributes;
+namespace EastmoneyMcpServer.Models.Attributes;
 
 [AttributeUsage(AttributeTargets.All, AllowMultiple = true)]
 public sealed class MetadataAttribute<T>(string key, T value) : Attribute
@@ -11,7 +11,7 @@ public sealed class MetadataAttribute<T>(string key, T value) : Attribute
 
 public static class MetadataEnumExtension
 {
-    public static T[] GetValue<T>(this Enum target, string key)
+    public static T[] GetValues<T>(this Enum target, string key)
     {
         var field = target.GetType().GetField(target.ToString());
         if (field is null) throw new ArgumentNullException(nameof(target), "field is null");
@@ -21,23 +21,10 @@ public static class MetadataEnumExtension
         return result;
     }
 
-    public static T GetLastValue<T>(this Enum target, string key)
+    public static T GetRequiredValue<T>(this Enum target, string key)
     {
-        var result = target.GetValue<T>(key);
-        return result[^1];
-    }
-
-    public static bool TryGetValue<T>(this Enum target, string key, out T[] result)
-    {
-        try
-        {
-            result = target.GetValue<T>(key);
-            return result.Length != 0;
-        }
-        catch
-        {
-            result = [];
-            return false;
-        }
+        var values = target.GetValues<T>(key);
+        if (values.Length == 0) throw new ArgumentNullException(key, "value not found");
+        return values[0];
     }
 }

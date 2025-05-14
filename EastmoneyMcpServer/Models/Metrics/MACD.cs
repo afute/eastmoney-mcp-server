@@ -5,14 +5,14 @@ public readonly struct MACD
 {
     public required DateTime Date { get; init; }
     
-    public required double Dif { get; init; }
-    public required double Dea { get; init; }
-    public required double Macd { get; init; }
+    public required decimal Dif { get; init; }
+    public required decimal Dea { get; init; }
+    public required decimal Macd { get; init; }
     
-    private static IEnumerable<double> Ema(IEnumerable<double> source, int period)
+    private static IEnumerable<decimal> Ema(IEnumerable<decimal> source, int period)
     {
-        var multiplier = 2.0 / (period + 1);
-        double? prevEma = null;
+        var multiplier = (decimal)2.0 / (period + 1);
+        decimal? prevEma = null;
         foreach (var value in source)
         {
             prevEma = prevEma.HasValue ? (value - prevEma.Value) * multiplier + prevEma.Value : value;

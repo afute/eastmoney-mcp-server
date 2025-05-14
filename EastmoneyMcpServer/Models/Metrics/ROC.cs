@@ -5,8 +5,8 @@ public readonly struct ROC
 {
     public required DateTime Date { get; init; }
     
-    public required double Value { get; init; }
-    public required double MaRoc { get; init; }
+    public required decimal Value { get; init; }
+    public required decimal MaRoc { get; init; }
 
     public static IEnumerable<ROC> Calc(KLine[] klines, int n, int m)
     {
@@ -21,7 +21,7 @@ public readonly struct ROC
         });
     }
 
-    private static IEnumerable<double> CalculateRoc(double[] closes, int n)
+    private static IEnumerable<decimal> CalculateRoc(decimal[] closes, int n)
     {
         for (var i = 0; i < closes.Length; i++)
         {
@@ -35,12 +35,12 @@ public readonly struct ROC
         }
     }
 
-    private static IEnumerable<double> CalculateMaRoc(IEnumerable<double> roc, int m)
+    private static IEnumerable<decimal> CalculateMaRoc(IEnumerable<decimal> roc, int m)
     {
         // 简单移动平均实现
-        var buffer = new double[m];
+        var buffer = new decimal[m];
         var index = 0;
-        double sum = 0;
+        decimal sum = 0;
         var count = 0;
 
         foreach (var value in roc)

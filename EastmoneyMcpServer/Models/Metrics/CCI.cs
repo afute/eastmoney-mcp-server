@@ -5,13 +5,13 @@ public sealed class CCI
 {
     public required DateTime Date { get; init; }
     
-    public required double Value { get; init; }
+    public required decimal Value { get; init; }
 
     public static IEnumerable<CCI> Calc(KLine[] klines, int n)
     {
-        var typicalPrices = new double[klines.Length];
+        var typicalPrices = new decimal[klines.Length];
         for (var i = 0; i < klines.Length; i++)
-            typicalPrices[i] = (klines[i].High + klines[i].Low + klines[i].Close) / 3.0;
+            typicalPrices[i] = (klines[i].High + klines[i].Low + klines[i].Close) / (decimal)3.0;
         
         for (var i = 0; i < klines.Length; i++)
         {
@@ -21,11 +21,11 @@ public sealed class CCI
                 continue;
             }
             var ma = typicalPrices[(i - n + 1)..(i + 1)].Average();
-            var sumDev = .0;
+            var sumDev = (decimal)0.0;
             for (var j = i - n + 1; j <= i; j++)
                 sumDev += Math.Abs(typicalPrices[j] - ma);
             var aveDev = sumDev / n;
-            var value = aveDev != 0 ? (typicalPrices[i] - ma) * 1000.0 / (15 * aveDev) : 0;
+            var value = aveDev != 0 ? (typicalPrices[i] - ma) * (decimal)1000.0 / (15 * aveDev) : 0;
             yield return new CCI { Date = klines[i].Date, Value = Math.Round(value, 3) };
         }
     }

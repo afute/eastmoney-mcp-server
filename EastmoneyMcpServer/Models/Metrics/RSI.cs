@@ -5,9 +5,9 @@ public readonly struct RSI
 {
     public required DateTime Date { get; init; }
     
-    public required double Rsi1 { get; init; }
-    public required double Rsi2 { get; init; }
-    public required double Rsi3 { get; init; }
+    public required decimal Rsi1 { get; init; }
+    public required decimal Rsi2 { get; init; }
+    public required decimal Rsi3 { get; init; }
     
     public static IEnumerable<RSI> Calc(KLine[] klines, int n1, int n2, int n3)
     {
@@ -31,12 +31,12 @@ public readonly struct RSI
         });
     }
     
-    private static IEnumerable<double> CalculateRsi(double[] gains, double[] absDeltas, int period)
+    private static IEnumerable<decimal> CalculateRsi(decimal[] gains, decimal[] absDeltas, int period)
     {
         yield return 0;
         
-        double? smaGain = null;
-        double? smaAbsDelta = null;
+        decimal? smaGain = null;
+        decimal? smaAbsDelta = null;
         
         for (var i = 1; i < gains.Length; i++) // 从第1个数据开始计算（需要前一日收盘价）
         {

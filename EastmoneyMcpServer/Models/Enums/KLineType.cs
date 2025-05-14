@@ -1,5 +1,5 @@
 ﻿using System.Text.Json.Serialization;
-using EastmoneyMcpServer.Attributes;
+using EastmoneyMcpServer.Models.Attributes;
 using ModelContextProtocol.Utils.Json;
 
 namespace EastmoneyMcpServer.Models.Enums;

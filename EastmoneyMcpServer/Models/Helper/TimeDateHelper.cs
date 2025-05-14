@@ -1,8 +1,8 @@
 ﻿using System.Globalization;
 
-namespace EastmoneyMcpServer.Helper;
+namespace EastmoneyMcpServer.Models.Helper;
 
-internal static class TimeDateExtension
+internal static class TimeDateHelper
 {
     internal static (int, int) GetIsoYearAndWeek(this DateTime date)
     {

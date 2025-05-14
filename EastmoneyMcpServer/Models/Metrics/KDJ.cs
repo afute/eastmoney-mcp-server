@@ -5,11 +5,11 @@ public readonly struct KDJ
 {
     public required DateTime Date { get; init; }
     
-    public required double K { get; init; }
-    public required double D { get; init; }
-    public required double J { get; init; }
+    public required decimal K { get; init; }
+    public required decimal D { get; init; }
+    public required decimal J { get; init; }
     
-    private static (double, double) GetHighAndLow(ReadOnlySpan<KLine> value)
+    private static (decimal, decimal) GetHighAndLow(ReadOnlySpan<KLine> value)
     {
         if (value.IsEmpty) throw new ArgumentException("Span is empty");
         
@@ -27,8 +27,8 @@ public readonly struct KDJ
 
     public static IEnumerable<KDJ> Calc(KLine[] klines, int n, int m1, int m2)
     {
-        var lastK = .0;
-        var lastD = .0;
+        var lastK = (decimal).0;
+        var lastD = (decimal).0;
         
         for (var index = 0; index < klines.Length; index++)
         {
@@ -39,8 +39,8 @@ public readonly struct KDJ
             var (high, low) = GetHighAndLow(frame);
 
             var rsv = high - low == 0 ? 0 : (kline.Close - low) / (high - low) * 100;
-            var k = index == 0 ? rsv : rsv / m1 + lastK * (m1 - 1.0) / m1;
-            var d = index == 0 ? k : k / m2 + lastD * (m2 - 1.0) / m2;
+            var k = index == 0 ? rsv : rsv / m1 + lastK * (m1 - (decimal)1.0) / m1;
+            var d = index == 0 ? k : k / m2 + lastD * (m2 - (decimal)1.0) / m2;
             var j = 3 * k - 2 * d;
 
             lastK = k;

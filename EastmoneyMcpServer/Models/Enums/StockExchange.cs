@@ -1,8 +1,8 @@
-﻿using EastmoneyMcpServer.Attributes;
+﻿using EastmoneyMcpServer.Models.Attributes;
 
 namespace EastmoneyMcpServer.Models.Enums;
 
-public enum StockBourse
+public enum StockExchange
 {
     [Metadata<string>("code", "1")]
     Shanghai = 1,

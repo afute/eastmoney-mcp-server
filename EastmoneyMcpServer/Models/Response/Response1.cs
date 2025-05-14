@@ -1,23 +1,28 @@
-﻿using System.ComponentModel;
-using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization;
+using EastmoneyMcpServer.Models.Attributes;
 
 namespace EastmoneyMcpServer.Models.Response;
 
-[Description("https://push2his.eastmoney.com/api/qt/stock/kline/get")]
+[Metadata<string>("url", "https://push2his.eastmoney.com/api/qt/stock/kline/get")]
 public class Response1
 {
     public struct ResponseData
     {
-        [JsonProperty("code")]
-        public string Code;
+        [JsonPropertyName("code")]
+        public string Code { get; init; }
 
-        [JsonProperty("name")]
-        public string Name;
-
-        [JsonProperty("klines")]
-        public string[]Lines;
+        [JsonPropertyName("name")]
+        public string Name { get; init; }
+        
+        // ReSharper disable once UnassignedField.Global
+        [JsonPropertyName("dktotal")]
+        public int DkTotal { get; init; }
+        
+        // ReSharper disable once UnassignedField.Global
+        [JsonPropertyName("klines")]
+        public string[] Lines { get; init; }
     }
     
-    [JsonProperty("data")]
-    public ResponseData? Data;
+    [JsonPropertyName("data")]
+    public ResponseData? Data { get; init; }
 }

@@ -91,6 +91,8 @@ public static partial class Program
 #region mcp
 public static partial class Program
 {
+    private record McpTool(McpServerTool Tool);
+    
     /// <summary>
     /// 添加工具
     /// </summary>
@@ -101,7 +103,7 @@ public static partial class Program
     {
         if (method.GetCustomAttribute<McpServerToolAttribute>() is null) return;
         
-        Func<IServiceProvider, McpServerTool> tool;
+        Func<IServiceProvider, McpTool> tool;
         
         if (method.IsStatic)
         {
@@ -112,9 +114,9 @@ public static partial class Program
                     Services = provider,
                     SerializerOptions = null
                 };
-                var mcpTool = McpServerTool.Create(method, options: options)
-                    .AddMcpServerToolDescription(method);
-                return mcpTool;
+                var mcpTool = McpServerTool.Create(method, options: options);
+                mcpTool.AddMcpServerToolDescription(method);
+                return new McpTool(mcpTool);
             };
         }
         else
@@ -126,9 +128,9 @@ public static partial class Program
                     Services = provider,
                     SerializerOptions = null
                 };
-                var mcpTool = McpServerTool.Create(method, toolType, options)
-                    .AddMcpServerToolDescription(method);
-                return mcpTool;
+                var mcpTool = McpServerTool.Create(method, toolType, options);
+                mcpTool.AddMcpServerToolDescription(method);
+                return new McpTool(mcpTool);
             };
         }
         
@@ -141,7 +143,7 @@ public static partial class Program
         Encoder = JavaScriptEncoder.Create(UnicodeRanges.All)
     };
 
-    private static McpServerTool AddMcpServerToolDescription(this McpServerTool tool, MethodInfo method)
+    private static void AddMcpServerToolDescription(this McpServerTool tool, MethodInfo method)
     {
         var generator = JsonSerializerOptions.Default;
         var generatorOptions = new JsonSchemaExporterOptions { TransformSchemaNode = TransformSchemaFunc};
@@ -153,12 +155,12 @@ public static partial class Program
         if (returnType.IsGenericType)
         {
             if (returnType.GetGenericTypeDefinition() != typeof(Task<>))
-                return tool;
+                return;
             returnType = returnType.GetGenericArguments()[0];
         }
 
         var schema = generator.GetJsonSchemaAsNode(returnType, generatorOptions);
-        if (schema is not JsonObject jObj) return tool;
+        if (schema is not JsonObject jObj) return;
         if (!string.IsNullOrEmpty(descriptionAttr?.Description))
         {
             var description = descriptionAttr.Description;
@@ -166,7 +168,6 @@ public static partial class Program
         }
         var result = "return schema:\r\n" + JsonSerializer.Serialize(schema, SchemaSerializerOptions);
         tool.ProtocolTool.Description = string.Join("\r\n\r\n", rawDescription, result);
-        return tool;
     }
 
     /// <summary>
@@ -226,8 +227,8 @@ public static partial class Program
         RequestContext<ListToolsRequestParams> context, CancellationToken _)
     {
         var services = context.Services ?? throw new NullReferenceException("services is null");
-        var mcpTools = services.GetServices<McpServerTool>().ToList();
-        var toolsResult = mcpTools.Select(t => t.ProtocolTool).ToList();
+        var mcpTools = services.GetServices<McpTool>().ToList();
+        var toolsResult = mcpTools.Select(t => t.Tool.ProtocolTool).ToList();
         return ValueTask.FromResult(new ListToolsResult { Tools = toolsResult });
     }
 
@@ -244,10 +245,10 @@ public static partial class Program
     {
         var services = context.Services ?? throw new NullReferenceException("services is null");
         var targetToolName = context.Params?.Name ?? throw new Exception("tool name is empty");
-        var method = (from tool in services.GetServices<McpServerTool>()
-            where tool.ProtocolTool.Name == targetToolName
+        var method = (from tool in services.GetServices<McpTool>()
+            where tool.Tool.ProtocolTool.Name == targetToolName
             select tool).FirstOrDefault() ?? throw new Exception($"{targetToolName} tool not found");
-        return await method.InvokeAsync(context, token).ConfigureAwait(false);
+        return await method.Tool.InvokeAsync(context, token).ConfigureAwait(false);
     }
 }
 #endregion

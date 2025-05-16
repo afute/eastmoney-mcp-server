@@ -7,13 +7,13 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="Controllers\" />
+      <Folder Include="Services\Controllers\" />
     </ItemGroup>
 
     <ItemGroup>
       <PackageReference Include="LazyCache.AspNetCore" Version="2.4.0" />
-      <PackageReference Include="ModelContextProtocol" Version="0.1.0-preview.13" />
-      <PackageReference Include="ModelContextProtocol.AspNetCore" Version="0.1.0-preview.13" />
+      <PackageReference Include="ModelContextProtocol" Version="0.2.0-preview.1" />
+      <PackageReference Include="ModelContextProtocol.AspNetCore" Version="0.2.0-preview.1" />
       <PackageReference Include="MongoDB.Bson" Version="3.4.0" />
       <PackageReference Include="MongoDB.Driver" Version="3.4.0" />
       <PackageReference Include="UserAgentGenerator" Version="1.22.807.1109" />

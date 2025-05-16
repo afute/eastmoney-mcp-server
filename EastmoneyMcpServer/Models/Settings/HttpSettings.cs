@@ -11,5 +11,13 @@ public sealed class HttpSettings
     [ConfigurationKeyName("Proxy")]
     public required string? RawProxy { get; init; }
 
+    /// <summary>
+    /// 超时时间 单位为毫秒
+    /// </summary>
     public TimeSpan Timeout => TimeSpan.FromMilliseconds(RawTimeout);
+    
+    /// <summary>
+    /// 代理
+    /// </summary>
+    public IWebProxy? Proxy => RawProxy is null ? null : new WebProxy(RawProxy);
 }

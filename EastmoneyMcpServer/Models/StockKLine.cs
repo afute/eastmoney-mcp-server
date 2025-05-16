@@ -1,13 +1,14 @@
 ﻿using System.Globalization;
+using EastmoneyMcpServer.Interfaces;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace EastmoneyMcpServer.Models;
 
-public readonly struct KLine
+public sealed class StockKLine : IMcpToolCallResult
 {
     [BsonId]
-    public ObjectId Id { get; init; }
+    public ObjectId Id { get; set; } = ObjectId.GenerateNewId();
     
     /// <summary>
     /// 直接把本地时间标记为utc时间
@@ -50,7 +51,7 @@ public readonly struct KLine
     [BsonRepresentation(BsonType.Decimal128)]
     public required decimal Volume { get; init; }
     
-    public static KLine Create(string data)
+    public static StockKLine Create(string data)
     {
         var splits = data.Split(",");
         
@@ -61,7 +62,7 @@ public readonly struct KLine
         var date = DateTime.ParseExact(dateString, format, info);
         date = DateTime.SpecifyKind(date, DateTimeKind.Utc);
         
-        var kline = new KLine
+        var kline = new StockKLine
         {
             Date = date,
             Open = decimal.Parse(splits[1]),
@@ -69,16 +70,14 @@ public readonly struct KLine
             High = decimal.Parse(splits[3]),
             Low = decimal.Parse(splits[4]),
             Volume = decimal.Parse(splits[5]),
-            
-            Id = ObjectId.GenerateNewId()
         };
         
         return kline;
     }
     
-    public KLine Merge(KLine other)
+    public StockKLine Merge(StockKLine other)
     {
-        return new KLine
+        return new StockKLine
         {
             Date = other.Date,
             Open = Open,
@@ -88,8 +87,8 @@ public readonly struct KLine
             Volume = Volume + other.Volume
         };
     }
-    
-    public string ToRaw()
+
+    public string ToMcpResult()
     {
         var date = Date.ToString("yyyy-MM-dd");
         return $"{date},{Open},{Close},{High},{Low},{Volume}";

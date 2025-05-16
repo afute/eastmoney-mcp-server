@@ -1,4 +1,4 @@
-﻿using EastmoneyMcpServer.Models.Attributes;
+﻿using EastmoneyMcpServer.Attributes;
 
 namespace EastmoneyMcpServer.Models.Enums;
 

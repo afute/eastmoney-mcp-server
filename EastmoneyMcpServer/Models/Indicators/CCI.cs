@@ -1,13 +1,17 @@
-﻿namespace EastmoneyMcpServer.Models.Metrics;
+﻿using EastmoneyMcpServer.Attributes;
 
+namespace EastmoneyMcpServer.Models.Indicators;
+
+/// <summary>
+/// 
+/// </summary>
 // ReSharper disable once InconsistentNaming
-public sealed class CCI
+public sealed class CCI : McpIndicators
 {
-    public required DateTime Date { get; init; }
-    
+    [McpToolCallResult("CCI")]
     public required decimal Value { get; init; }
-
-    public static IEnumerable<CCI> Calc(KLine[] klines, int n)
+    
+    public static IEnumerable<CCI> Calc(StockKLine[] klines, int n)
     {
         var typicalPrices = new decimal[klines.Length];
         for (var i = 0; i < klines.Length; i++)
@@ -28,11 +32,5 @@ public sealed class CCI
             var value = aveDev != 0 ? (typicalPrices[i] - ma) * (decimal)1000.0 / (15 * aveDev) : 0;
             yield return new CCI { Date = klines[i].Date, Value = Math.Round(value, 3) };
         }
-    }
-
-    public override string ToString()
-    {
-        var date = Date.ToString("yyyy-MM-dd");
-        return $"{date},{Value}";
     }
 }

@@ -1,14 +1,17 @@
-﻿namespace EastmoneyMcpServer.Models.Metrics;
+﻿using EastmoneyMcpServer.Attributes;
+
+namespace EastmoneyMcpServer.Models.Indicators;
 
 // ReSharper disable once InconsistentNaming
-public readonly struct ROC
+public sealed class ROC : McpIndicators
 {
-    public required DateTime Date { get; init; }
-    
+    [McpToolCallResult("ROC")]
     public required decimal Value { get; init; }
+    
+    [McpToolCallResult("MAROC")]
     public required decimal MaRoc { get; init; }
 
-    public static IEnumerable<ROC> Calc(KLine[] klines, int n, int m)
+    public static IEnumerable<ROC> Calc(StockKLine[] klines, int n, int m)
     {
         var closes = klines.Select(k => k.Close).ToArray();
         var roc = CalculateRoc(closes, n).ToArray();

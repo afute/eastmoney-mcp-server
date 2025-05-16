@@ -1,27 +1,29 @@
-﻿using EastmoneyMcpServer.Models.Enums;
+﻿using EastmoneyMcpServer.Models;
+using EastmoneyMcpServer.Models.Enums;
+using ModelContextProtocol;
 
-namespace EastmoneyMcpServer.Models.Helper;
+namespace EastmoneyMcpServer.Extensions;
 
-public static class StockHelper
+public static class StockExtension
 {
     /// <summary>
     /// 
     /// </summary>
     /// <param name="code"></param>
     /// <returns></returns>
-    /// <exception cref="FormatException"></exception>
-    public static StockExchange GetStockExchange(string code)
+    /// <exception cref="McpException"></exception>
+    public static StockExchange GetStockExchangeFromString(this string code)
     {
         if (code.Length == 5) return StockExchange.HongKong;
         if (code.Length != 6 || !int.TryParse(code, out _))
-            throw new FormatException("不支持A股和港股以外的股票");
+            throw new McpException("不支持A股和港股以外的股票", McpErrorCode.InternalError);
 
         return code[0].ToString() switch
         {
             "5" or "6" => StockExchange.Shanghai,
             "1" or "0" or "3" => StockExchange.Shenzhen,
             "8" => StockExchange.Beijing,
-            _ => throw new FormatException("不支持A股和港股以外的股票")
+            _ => throw new McpException("不支持A股和港股以外的股票", McpErrorCode.InternalError)
         };
     } 
     
@@ -32,10 +34,10 @@ public static class StockHelper
     /// <param name="klineType"></param>
     /// <returns></returns>
     /// <exception cref="ArgumentOutOfRangeException"></exception>
-    public static KLine[] MergeKlines(this IEnumerable<KLine> kls, KLineType klineType)
+    public static StockKLine[] MergeKlines(this IEnumerable<StockKLine> kls, KLineType klineType)
     {
         var klines = kls.ToArray();
-        var result = new List<KLine>(klines.Length);
+        var result = new List<StockKLine>(klines.Length);
         
         Func<DateTime, int> mergeFunc = klineType switch
         {

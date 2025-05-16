@@ -1,15 +1,20 @@
-﻿namespace EastmoneyMcpServer.Models.Metrics;
+﻿using EastmoneyMcpServer.Attributes;
+
+namespace EastmoneyMcpServer.Models.Indicators;
 
 // ReSharper disable once InconsistentNaming
-public readonly struct RSI
+public sealed class RSI : McpIndicators
 {
-    public required DateTime Date { get; init; }
-    
+    [McpToolCallResult("RSI1")]
     public required decimal Rsi1 { get; init; }
+    
+    [McpToolCallResult("RSI2")]
     public required decimal Rsi2 { get; init; }
+    
+    [McpToolCallResult("RSI3")]
     public required decimal Rsi3 { get; init; }
     
-    public static IEnumerable<RSI> Calc(KLine[] klines, int n1, int n2, int n3)
+    public static IEnumerable<RSI> Calc(StockKLine[] klines, int n1, int n2, int n3)
     {
         var closes = klines.Select(k => k.Close).ToArray();
         var lc = closes.Select((_, i) => i > 0 ? closes[i - 1] : 0).ToArray();
@@ -59,11 +64,5 @@ public readonly struct RSI
             }
             else yield return 0; // 前period-1个数据点无法计算RSI
         }
-    }
-
-    public override string ToString()
-    {
-        var date = Date.ToString("yyyy-MM-dd");
-        return $"{date},{Rsi1},{Rsi2},{Rsi3}";
     }
 }

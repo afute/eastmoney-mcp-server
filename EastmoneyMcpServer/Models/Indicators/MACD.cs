@@ -1,12 +1,17 @@
-﻿namespace EastmoneyMcpServer.Models.Metrics;
+﻿using EastmoneyMcpServer.Attributes;
+
+namespace EastmoneyMcpServer.Models.Indicators;
 
 // ReSharper disable once InconsistentNaming
-public readonly struct MACD
+public sealed class MACD : McpIndicators
 {
-    public required DateTime Date { get; init; }
-    
+    [McpToolCallResult("DIF")]
     public required decimal Dif { get; init; }
+    
+    [McpToolCallResult("DEA")]
     public required decimal Dea { get; init; }
+    
+    [McpToolCallResult("MACD")]
     public required decimal Macd { get; init; }
     
     private static IEnumerable<decimal> Ema(IEnumerable<decimal> source, int period)
@@ -20,7 +25,7 @@ public readonly struct MACD
         }
     }
     
-    public static IEnumerable<MACD> Calc(KLine[] klines, int @short, int @long, int mid)
+    public static IEnumerable<MACD> Calc(StockKLine[] klines, int @short, int @long, int mid)
     {
         var closes = klines.Select(k => k.Close).ToArray();
         var emaShort = Ema(closes, @short).ToArray();
@@ -35,11 +40,5 @@ public readonly struct MACD
             Dea = Math.Round(dea[i], 3), 
             Macd = Math.Round(macd[i], 3)
         });
-    }
-
-    public override string ToString()
-    {
-        var date = Date.ToString("yyyy-MM-dd");
-        return $"{date},{Dif},{Dea},{Macd}";
     }
 }

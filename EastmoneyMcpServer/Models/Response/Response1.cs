@@ -1,9 +1,11 @@
 ﻿using System.Text.Json.Serialization;
-using EastmoneyMcpServer.Models.Attributes;
 
 namespace EastmoneyMcpServer.Models.Response;
 
-[Metadata<string>("url", "https://push2his.eastmoney.com/api/qt/stock/kline/get")]
+/// <summary>
+/// https://push2his.eastmoney.com/api/qt/stock/kline/get
+/// response
+/// </summary>
 public class Response1
 {
     public struct ResponseData

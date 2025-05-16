@@ -1,10 +1,15 @@
 ﻿using System.Globalization;
 
-namespace EastmoneyMcpServer.Models.Helper;
+namespace EastmoneyMcpServer.Extensions;
 
-internal static class TimeDateHelper
+public static class TimeDateExtension
 {
-    internal static (int, int) GetIsoYearAndWeek(this DateTime date)
+    /// <summary>
+    /// 获取ISO周的年份和周数
+    /// </summary>
+    /// <param name="date"></param>
+    /// <returns></returns>
+    public static (int, int) GetIsoYearAndWeek(this DateTime date)
     {
         // 调整到周四（ISO周计算的核心）
         var thursday = date.AddDays(3 - ((int)date.DayOfWeek + 6) % 7);
@@ -18,18 +23,5 @@ internal static class TimeDateHelper
         // 计算这是该年的第几周
         var week = calendar.GetWeekOfYear(thursday, rule, DayOfWeek.Monday);
         return (year, week);
-    }
-    
-    /// <summary>
-    /// 日期时间整数 [2025-01-01] -> [20250101] kind = Unspecified
-    /// </summary>
-    /// <param name="date"></param>
-    /// <returns></returns>
-    internal static int ToInt(this DateTime date)
-    {
-        var year = date.Year;
-        var month = date.Month;
-        var day = date.Day;
-        return year * 10000 + month * 100 + day * 1;
     }
 }

@@ -1,15 +1,20 @@
-﻿namespace EastmoneyMcpServer.Models.Metrics;
+﻿using EastmoneyMcpServer.Attributes;
+
+namespace EastmoneyMcpServer.Models.Indicators;
 
 // ReSharper disable once InconsistentNaming
-public readonly struct KDJ
+public sealed class KDJ : McpIndicators
 {
-    public required DateTime Date { get; init; }
-    
+    [McpToolCallResult("K")]
     public required decimal K { get; init; }
+    
+    [McpToolCallResult("D")]
     public required decimal D { get; init; }
+    
+    [McpToolCallResult("J")]
     public required decimal J { get; init; }
     
-    private static (decimal, decimal) GetHighAndLow(ReadOnlySpan<KLine> value)
+    private static (decimal, decimal) GetHighAndLow(ReadOnlySpan<StockKLine> value)
     {
         if (value.IsEmpty) throw new ArgumentException("Span is empty");
         
@@ -25,7 +30,7 @@ public readonly struct KDJ
         return (high, low);
     }
 
-    public static IEnumerable<KDJ> Calc(KLine[] klines, int n, int m1, int m2)
+    public static IEnumerable<KDJ> Calc(StockKLine[] klines, int n, int m1, int m2)
     {
         var lastK = (decimal).0;
         var lastD = (decimal).0;
@@ -53,11 +58,5 @@ public readonly struct KDJ
                 J = Math.Round(j, 3)
             };
         }
-    }
-
-    public override string ToString()
-    {
-        var date = Date.ToString("yyyy-MM-dd");
-        return $"{date},{K},{D},{J}";
     }
 }

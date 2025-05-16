@@ -60,17 +60,37 @@ public static partial class Program
         {
             var userAgent = UserAgent.Generate(Browser.Chrome, Platform.Desktop) ?? "";
             var settings = provider.GetRequiredService<IOptions<AppSettings>>();
-            Console.WriteLine(settings);
             client.BaseAddress = new Uri("https://push2his.eastmoney.com/");
-            Console.WriteLine(settings.Value.Http.Timeout);
             client.Timeout = settings.Value.Http.Timeout;
             client.DefaultRequestHeaders.Add("User-Agent", userAgent);
             client.DefaultRequestHeaders.Add("Referer", "https://quote.eastmoney.com/");
         }).ConfigurePrimaryHttpMessageHandler(provider =>
         {
             var settings = provider.GetRequiredService<IOptions<AppSettings>>();
-            Console.WriteLine(settings.Value.Http.Timeout);
-            
+            var handler = new HttpClientHandler
+            {
+                AutomaticDecompression = DecompressionMethods.All,
+                AllowAutoRedirect = false,
+                UseCookies = false,
+                UseProxy = settings.Value.Http.Proxy is not null
+            };
+            if (handler.UseProxy)
+                handler.Proxy = settings.Value.Http.Proxy;
+            return handler;
+        });
+        
+        // 以名搜股票代码 HttpClient
+        services.AddHttpClient("search-codetable.eastmoney.com", (provider, client) =>
+        {
+            var userAgent = UserAgent.Generate(Browser.Chrome, Platform.Desktop) ?? "";
+            var settings = provider.GetRequiredService<IOptions<AppSettings>>();
+            client.BaseAddress = new Uri("https://search-codetable.eastmoney.com/");
+            client.Timeout = settings.Value.Http.Timeout;
+            client.DefaultRequestHeaders.Add("User-Agent", userAgent);
+            client.DefaultRequestHeaders.Add("Referer", "https://quote.eastmoney.com/");
+        }).ConfigurePrimaryHttpMessageHandler(provider =>
+        {
+            var settings = provider.GetRequiredService<IOptions<AppSettings>>();
             var handler = new HttpClientHandler
             {
                 AutomaticDecompression = DecompressionMethods.All,

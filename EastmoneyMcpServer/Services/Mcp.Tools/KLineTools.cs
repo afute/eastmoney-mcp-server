@@ -16,7 +16,7 @@ namespace EastmoneyMcpServer.Services.Mcp.Tools;
 public sealed class KLineTools(IKLineInstance kLineInstance, ILogger<KLineTools> logger)
 {
     [McpServerTool(Name = "get_kline_data", Title = "获取股票K线数据")]
-    [Description("获取股票K线数据 返回格式: 日期,开盘价,收盘价,最低价,最高价,成交量")]
+    [Description("获取股票K线数据 返回格式: 日期,开盘价,收盘价,最低价,最高价,成交量,成交额,换手率")]
     public async Task<IEnumerable<string>> GetKLineData(
         [Description("股票代码 ps:A股长度为6位, 港股为5位")]
         [Required]
@@ -61,8 +61,8 @@ public sealed class KLineTools(IKLineInstance kLineInstance, ILogger<KLineTools>
         var filter = Builders<StockKLine>.Filter.Lte(x => x.Date, end);
         var result = await collection.Find(filter)
             .Sort(Builders<StockKLine>.Sort.Descending(x => x.Date))
-            .Limit(length)
             .ToListAsync(token) ?? [];
-        return result.MergeKlines(klineType).Select(k => k.ToMcpResult()).Reverse();
+        var data = result.MergeKlines(klineType).Select(k => k.ToMcpResult());
+        return data.Reverse().ToArray()[^length..];
     }
 }

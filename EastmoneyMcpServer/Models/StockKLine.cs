@@ -51,6 +51,14 @@ public sealed class StockKLine : IMcpToolCallResult
     [BsonRepresentation(BsonType.Decimal128)]
     public required decimal Volume { get; init; }
     
+    [BsonElement("turnover")]
+    [BsonRepresentation(BsonType.Decimal128)]
+    public required decimal Turnover { get; init; }
+    
+    [BsonElement("turnover_rate")]
+    [BsonRepresentation(BsonType.Decimal128)]
+    public required decimal TurnoverRate { get; init; }
+    
     public static StockKLine Create(string data)
     {
         var splits = data.Split(",");
@@ -70,6 +78,8 @@ public sealed class StockKLine : IMcpToolCallResult
             High = decimal.Parse(splits[3]),
             Low = decimal.Parse(splits[4]),
             Volume = decimal.Parse(splits[5]),
+            Turnover = decimal.Parse(splits[6]),
+            TurnoverRate = decimal.Parse(splits[7])
         };
         
         return kline;
@@ -84,13 +94,15 @@ public sealed class StockKLine : IMcpToolCallResult
             Close = other.Close,
             High = decimal.Max(High, other.High),
             Low = decimal.Min(Low, other.Low),
-            Volume = Volume + other.Volume
+            Volume = Volume + other.Volume,
+            Turnover = Turnover + other.Turnover,
+            TurnoverRate = TurnoverRate + other.TurnoverRate
         };
     }
 
     public string ToMcpResult()
     {
         var date = Date.ToString("yyyy-MM-dd");
-        return $"{date},{Open},{Close},{High},{Low},{Volume}";
+        return $"{date},{Open},{Close},{High},{Low},{Volume},{Turnover},{TurnoverRate}%";
     }
 }

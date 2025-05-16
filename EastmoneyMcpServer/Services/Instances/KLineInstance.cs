@@ -98,7 +98,7 @@ public sealed class KLineInstance(
         {
             { "secid", exchange.GetRequiredValue<string>("code") + "." + code },
             { "fields1", "f1,f3,f5" },
-            { "fields2", "f51,f52,f53,f54,f55,f56" },
+            { "fields2", "f51,f52,f53,f54,f55,f56,f57,f61" },
             { "klt", "101" },
             { "fqt", adjustedType.GetRequiredValue<string>("code") },
             { "end", end.ToString("yyyyMMdd") },
@@ -116,7 +116,7 @@ public sealed class KLineInstance(
         {
             { "secid", exchange.GetRequiredValue<string>("code") + "." + code },
             { "fields1", "f1,f3,f5" },
-            { "fields2", "f51,f52,f53,f54,f55,f56" },
+            { "fields2", "f51,f52,f53,f54,f55,f56,f57,f61" },
             { "klt", "101" },
             { "fqt", adjustedType.GetRequiredValue<string>("code") },
             { "end", end.ToString("yyyyMMdd") },

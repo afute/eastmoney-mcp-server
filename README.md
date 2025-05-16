@@ -14,9 +14,9 @@
 
 ### 使用
 
-[daodao97/chatmcp](https://github.com/daodao97/chatmcp)
+[CherryHQ/cherry-studio](https://github.com/CherryHQ/cherry-studio)
 
-![chatmcp](./example1.png)
+![cherry studio](./example1.png)
 
 
 <details>
